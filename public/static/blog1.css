@@ -1,0 +1,72 @@
+/*penggunaan calc*/
+/*property: calc(expression);*/
+/*penjumblahan
+width:  calc(10px + 100px)*/
+/*pengurangan 
+width:  calc(100px - 10px);*/
+/*perkalian dan pembagian dengan syarat tidak boleh 
+dikali atau di bagi yg mempunyai satuan*/
+/*margin:  calc(10px * 3) /valid */
+/*margin:  calc(30px * 3px) /invalid */
+/*margin:  calc(10px / 3) /valid */
+/*margin:  calc(30px / 3px) /invalid */
+/*margin:  calc(30px / 0) /invalid tidak bisa di bagi 0 */
+/*spasi*/
+/*width:  calc(10px + 100px); /valid*/
+/*width:  calc(10px+100px); /invalid*/
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+
+
+body {
+  font-family: Nunito, sans-serif;
+  min-height: 100vh;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: #333;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  width: calc(100vw - 4em);
+}
+
+.container h1 {
+  text-align: center;
+  color: lightblue;
+  font-size: calc(6vw + 1.5);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+.full-size {
+  background-image: url(/static/background/four.jpeg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 1000px;
+  display: block;
+  max-width: 100%;
+}
+
+ .full-size p{
+   color: white;
+ }
+
+.highlight {
+  background-color: lightblue;
+  text-align: center;
+  font-style: italic;
+  padding: 2em;
+  margin: 0 calc(-50vw + 50%);
+  font-size: calc(1vw + 1.2rem);
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="/static/card.css">
+    <title><%= title %> </title>
+  </head>
+  <body>
+    
+    <% result.forEach(result => { %>
+      <div class="card">
+        <div class="card-header">
+          <img src= "/static/images/menu/<%= result.gambar %> "alt="ballons" />
+        </div>
+        <div class="card-body">
+          <span class="tag tag-purple">Popular</span>
+          <h4>
+            <%= result.menu %> 
+          </h4>
+          <h5>
+            <%= result.harga %> 
+          </h5>
+          <p>
+            <%= result.description %> <br>
+            <%= result.kode %>
+          </p>
+          
+            <a href="/blog" class="card-link">Back to menu</a>
+            <a href="/pesan" class="card-link">Buy food</a>
+        </div>
+      </div>
+  <% }) %>
+
+    
+  </div>
+
+  </body>
+</html>

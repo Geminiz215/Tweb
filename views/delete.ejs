@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"
+      />
+      <link rel="stylesheet" href="/static/blog.css" />
+    <!-- my CSS -->
+    <title>delete</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Delete Menu</h1>
+      <a href="/">
+        <button class="btn-pill">
+          <span> back to index</span>
+        </button>
+      </a>
+      <form action="/edit/delete" method="post">
+        <div class="mb-3">
+          <label for="exampleInputEmail1" class="form-label">kode menu</label>
+          <input
+            type="text"
+            class="form-control"
+            id="exampleInputEmail1"
+            aria-describedby="emailHelp"
+            name="kode"
+            required
+          />
+          <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+        </div>
+        
+        <div class="mb-3 form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="exampleCheck1"
+            required
+          />
+          <label class="form-check-label" for="exampleCheck1"
+            >Check me out</label
+          >
+        </div>
+        <a href="/edit">
+        <button type="button" class="btn btn-primary">Submit</button>
+        </a>
+        <button type="submit" class="btn btn-danger">delete</button>
+        
+      </form>
+      <br />
+
+      <br /><br />
+      <a href="/pesan">
+        <button class="btn-shine">
+          <span>buy here</span>
+        </button>
+      </a>
+      <br /><br />
+    </div>
+
+    <div alt="desk-setup" class="full-size"></div>
+
+    <div class="container">
+      <p class="highlight">
+        welcome to Waroeng solo website, kita menyediakan beragam jenis makanan
+        solo berkualitas yang akan membawa anda merasakan kampung halaman anda
+      </p>
+      <p>
+        dolorum, fuga temporibus odio voluptates dicta, ad est. Perspiciatis
+        repellendus beatae at, distinctio, voluptatem sint repellat culpa
+        exercitationem, officia aspernatur asperiores.
+      </p>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic
+        accusantium odio expedita dignissimos vel sunt culpa numquam dolorem
+        animi dolor aperiam debitis dolores eum nemo odit, aspernatur tempora
+        molestiae minima similique rem voluptates quis necessitatibus? Dolore
+        voluptates reiciendis distinctio molestiae, eius quae cum fuga maiores
+        quidem, ex repellat ad. Ducimus repellat neque sint magni accusantium?
+        Et iusto beatae corrupti?
+      </p>
+    </div>
+  </body>
+</html>

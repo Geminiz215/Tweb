@@ -1,0 +1,25 @@
+create table isimenu (
+id int not null primary key auto_increment,
+menu varchar(100) not null unique,
+harga varchar(100) not null,
+description TEXT,
+kode varchar(100) not null ,
+tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
+
+create table pemesanan (
+id int not null primary key auto_increment,
+kode varchar(100) not null,
+email varchar(100) not null,
+kuantitas int not null,
+constraint kodeMakan
+foreign key (kode) references isimenu(kode),
+constraint cekEmail
+foreign key (email) references accounts(email)
+)
+
+SELECT pemesanan.kode, isimenu.menu , pemesanan.email,pemesanan.kuantitas ,isimenu.harga
+FROM isimenu 
+INNER JOIN pemesanan ON pemesanan.kode=isimenu.kode 
+where email = "hathat@gmail.com"
+
+https://freefrontend.com/css-clocks/
