@@ -4,11 +4,20 @@ const port = 3000;
 const morgan = require("morgan");
 const { validationResult, check } = require("express-validator");
 const db = require("./dataBase/db_config.js");
-const { inputdata, inputPesan, inputMenu, deleteMenu, deleteKeranjang, update} = require("./dataBase/tableLogin");
+const {
+  inputdata,
+  inputPesan,
+  inputMenu,
+  deleteMenu,
+  deleteKeranjang,
+  update,
+} = require("./dataBase/tableLogin");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
 const { title } = require("process");
+const bcrypt = require("bcrypt");
+var salt = bcrypt.genSaltSync(10);
 
 //set view engine ejs
 app.set("view engine", "ejs");
@@ -51,10 +60,10 @@ app.get("/blog", (req, res) => {
   db.connect(function (err) {
     let sql = `SELECT * FROM isiMenu`;
     db.query(sql, function (err, result) {
-        res.render("blog", {
-          result: result,
-          msg: req.flash("msg"),
-        });
+      res.render("blog", {
+        result: result,
+        msg: req.flash("msg"),
+      });
     });
   });
 });
@@ -91,14 +100,28 @@ app.post(
     if (!errors.isEmpty()) {
       res.send(errors.array());
       console.log(errors.array);
-    } else {
-      let email = req.body.signupemail;
-      let password = req.body.signuppassword;
-      let username = req.body.username;
-
-      inputdata(email, password, username);
-      res.redirect("/login");
     }
+    let email = req.body.signupemail;
+    let password = req.body.signuppassword;
+    let username = req.body.username;
+
+    db.connect(function (err) {
+      let sql = `SELECT * FROM accounts where email = "${email}"`;
+      db.query(sql, function (err, result) {
+        if (err) throw err;
+        if (result.length > 0) {
+          res.send({ message: "Email already usage" });
+        } 
+        else {
+          var hashPassword = bcrypt.hashSync(password , salt);
+          inputdata(email, hashPassword, username);
+          res.redirect("/login");
+          
+          
+        }
+      });
+    });
+
   }
 );
 
@@ -116,14 +139,22 @@ app.post(
       let password = req.body.Password;
 
       db.connect(function (err) {
-        let sql = `SELECT * FROM accounts where email = "${email}" AND password = "${password}"`;
+        let sql = `SELECT * FROM accounts where email = "${email}"`;
         db.query(sql, function (err, result) {
           if (err) throw err;
           if (result.length > 0) {
             result.forEach((accounts) => {
-              req.session.Email = accounts.email;
-              req.session.username = accounts.username;
-              res.redirect("/");
+
+              var cek = bcrypt.compareSync(password, accounts.password);
+
+              if(cek){
+                req.session.Email = accounts.email;
+                req.session.username = accounts.username;
+                res.redirect("/");
+              } else{
+                res.send({ message: "incorect password" });
+              }
+        
             });
           } else {
             res.send({ message: "Wrong username/password" });
@@ -151,26 +182,24 @@ app.post("/Pesan", (req, res) => {
   let Jumlah = parseInt(req.body.Jumlah);
   let option = req.body.option;
   let Notes = req.body.Notes;
-  console.log(Jumlah + 3)
+  console.log(Jumlah + 3);
 
   db.connect(function (err) {
     let sql = `SELECT * FROM pemesanan where email = "${Email}" and kode = "${option}"`;
     db.query(sql, function (err, result) {
-      if (result.length > 0){
-        result.forEach(customer => {
-        let isi = customer.kuantitas
-        
-        update(isi, Jumlah, Email, option, Notes)
-        req.flash("msg", "pesanan Berhasil di update");
-        res.redirect("/Keranjang");
+      if (result.length > 0) {
+        result.forEach((customer) => {
+          let isi = customer.kuantitas;
+
+          update(isi, Jumlah, Email, option, Notes);
+          req.flash("msg", "pesanan Berhasil di update");
+          res.redirect("/Keranjang");
         });
-      }
-      else{
+      } else {
         inputPesan(option, Email, Jumlah, Notes);
         req.flash("msg", "pesanan sudah di keranjang");
         res.redirect("/Keranjang");
       }
-
     });
   });
 });
@@ -214,29 +243,28 @@ app.post("/edit", (req, res) => {
 });
 
 app.get("/edit/delete", (req, res) => {
-  res.render('delete')
-})
+  res.render("delete");
+});
 
 app.post("/edit/delete", (req, res) => {
-  let kode = req.body.kode
+  let kode = req.body.kode;
 
-  deleteMenu(kode)
-  req.flash('msg','success delete data')
-  res.redirect('/blog')
-})
+  deleteMenu(kode);
+  req.flash("msg", "success delete data");
+  res.redirect("/blog");
+});
 
-app.get('/Logout',(req,res) => {
-  req.session.destroy()
-  res.redirect('/')
-})
+app.get("/Logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
 
-app.get('/keranjang/:kode',(req,res) => {
-  let kode = req.params.kode
-  let email = req.session.Email
-  deleteKeranjang(email,kode)
-  res.redirect('/keranjang')
-})
-
+app.get("/keranjang/:kode", (req, res) => {
+  let kode = req.params.kode;
+  let email = req.session.Email;
+  deleteKeranjang(email, kode);
+  res.redirect("/keranjang");
+});
 
 app.listen(port, () => {
   console.log(`example map listening at localhost http://localhost:${port}`);
