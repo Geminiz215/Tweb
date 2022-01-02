@@ -104,6 +104,11 @@ app.post(
     let email = req.body.signupemail;
     let password = req.body.signuppassword;
     let username = req.body.username;
+    let Confirmpassword = req.body.confirmPasswordsignup
+
+    if(password !== Confirmpassword){
+      res.send({massage : "incorect confirm password"})
+    }
 
     db.connect(function (err) {
       let sql = `SELECT * FROM accounts where email = "${email}"`;
