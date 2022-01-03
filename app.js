@@ -16,6 +16,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
 const { title } = require("process");
+//hash password
 const bcrypt = require("bcrypt");
 var salt = bcrypt.genSaltSync(10);
 
@@ -29,14 +30,6 @@ app.use(morgan("dev"));
 //config flash massage/session
 app.use(cookieParser("secret"));
 // session
-// app.use(
-//   session({
-//     cookie: { maxAge: 6000 },
-//     secret: "secret",
-//     resave: true,
-//     saveUninitialized: true,
-//   })
-// );
 app.use(
   session({
     name: "session",
@@ -50,10 +43,21 @@ app.use(flash());
 
 app.get("/", (req, res) => {
   let nama = req.session.username;
-  res.render("index", {
-    title: "Waroeng solo",
-    username: nama,
+  let email = req.session.Email
+
+  db.connect(function (err) {
+    let sql = `SELECT * FROM accounts WHERE email = "${email}"`;
+    db.query(sql, function (err, result) {
+      res.render("index", {
+        title: "Waroeng solo",
+        username: nama,
+        result,
+      });
+    });
   });
+
+  
+  
 });
 
 app.get("/blog", (req, res) => {
@@ -79,12 +83,6 @@ app.get("/blog/:nama", (req, res) => {
       });
     });
   });
-  // const Menuku = findMenu(req.params.nama)
-
-  // res.render('detail',{
-  //     title : 'detail menu',
-  //     Menuku,
-  // })
 });
 
 app.get("/login", (req, res) => {
@@ -187,7 +185,6 @@ app.post("/Pesan", (req, res) => {
   let Jumlah = parseInt(req.body.Jumlah);
   let option = req.body.option;
   let Notes = req.body.Notes;
-  console.log(Jumlah + 3);
 
   db.connect(function (err) {
     let sql = `SELECT * FROM pemesanan where email = "${Email}" and kode = "${option}"`;

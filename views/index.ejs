@@ -67,11 +67,14 @@
 
                       <% } %> 
 
-                      <% if (username == "udin") { %>
-                        <li class="nav-item">
-                          <a class="nav-link" href="/edit">Edit </a>
-                        </li> 
-                      <% } %>
+                      <% result.forEach(data => { %>
+                        <% if (data.identity == "user") { %>
+                          <li class="nav-item">
+                            <a class="nav-link" href="/edit">Edit </a>
+                          </li> 
+                        <% } %>
+                      <% }) %>
+
                   </ul>
            </nav>
          </div>

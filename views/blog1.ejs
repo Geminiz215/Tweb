@@ -60,9 +60,15 @@
             </td>
           </tr>
           <% }) %>
+          <% if (!email) { %>
+           <tr>
+             <td colspan="6" class="table-success"> Login <a href="/login">disini</a> untuk melihat pesanan</td>
+           </tr>
+          <% }else{ %>
           <tr>
             <td colspan="6" class="table-success"> untuk melanjutkan pesanan silahkan <a href="https://wa.me/62895391034893">Klik disini</a> </td>
           </tr>
+          <% } %>
         </tbody>
       </table>
       <br />
