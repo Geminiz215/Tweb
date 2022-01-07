@@ -1,4 +1,12 @@
-[
-    {"nama": "Gulai","Harga": "20.000" ,"desc":"Enak bett parah"},
-    {"nama": "Muhammad Fathi Farhat","Harga": "20.000" ,"desc":"Enak bett parah ga boong"}
-]
+{
+    "makanan" : [{
+        "nama" : "bakso",
+        "harga" : "5000"
+    },{
+        "nama" : "kebab",
+        "harga": "12000"
+    },{
+        "nama": "kikil",
+        "harga": "10000"
+    }]
+}
