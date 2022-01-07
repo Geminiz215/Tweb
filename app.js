@@ -98,21 +98,21 @@ app.post(
 
     if (password !== Confirmpassword) {
       res.send({ massage: "incorect confirm password" });
-    }
-
-    db.connect(function (err) {
-      let sql = `SELECT * FROM accounts where email = "${email}"`;
-      db.query(sql, function (err, result) {
-        if (err) throw err;
-        if (result.length > 0) {
-          res.send({ message: "Email already usage" });
-        } else {
-          var hashPassword = bcrypt.hashSync(password, salt);
-          inputdata(email, hashPassword, username);
-          res.redirect("/login");
-        }
+    } else {
+      db.connect(function (err) {
+        let sql = `SELECT * FROM accounts where email = "${email}"`;
+        db.query(sql, function (err, result) {
+          if (err) throw err;
+          if (result.length > 0) {
+            res.send({ message: "Email already usage" });
+          } else {
+            var hashPassword = bcrypt.hashSync(password, salt);
+            inputdata(email, hashPassword, username);
+            res.redirect("/login");
+          }
+        });
       });
-    });
+    }
   }
 );
 
@@ -174,8 +174,6 @@ app.post("/Pesan", (req, res) => {
   let Notes = req.body.Notes;
   let EmailSession = req.session.Email;
 
-  console.log(EmailSession)
-
   if (Email !== EmailSession) {
     res.send({ message: "wrong email usage" });
   } else {
@@ -214,7 +212,6 @@ app.get("/keranjang", (req, res) => {
     INNER JOIN pemesanan ON pemesanan.kode=isimenu.kode 
     where email = "${email}"`;
     db.query(sql, function (err, result) {
-      console.log(result)
       res.render("blog1", {
         result,
         msg: req.flash("msg"),
