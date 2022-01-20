@@ -1,9 +1,8 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 2000;
 const morgan = require("morgan");
 const { validationResult, check } = require("express-validator");
-const db = require("./dataBase/db_config.js");
 const {
   inputdata,
   inputPesan,
@@ -11,12 +10,14 @@ const {
   deleteMenu,
   deleteKeranjang,
   update,
+  menuku,
 } = require("./dataBase/tableLogin");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
 //hash password
 const bcrypt = require("bcrypt");
+const axios = require("axios");
 
 var salt = bcrypt.genSaltSync(10);
 
@@ -53,26 +54,28 @@ app.get("/", (req, res) => {
 });
 
 app.get("/blog", (req, res) => {
-  db.connect(function (err) {
-    let sql = `SELECT * FROM isiMenu`;
-    db.query(sql, function (err, result) {
-      res.render("blog", {
-        result: result,
-        msg: req.flash("msg"),
-      });
+  axios({
+    method: "GET",
+    url: "http://localhost:3000/isimenu/",
+  }).then((result) => {
+    const data = result.data;
+    res.render("blog", {
+      result: data,
+      msg: req.flash("msg"),
     });
   });
 });
 
 app.get("/blog/:nama", (req, res) => {
   let Menuku = req.params.nama;
-  db.connect(function (err) {
-    let sql = `SELECT * FROM isiMenu WHERE menu = "${Menuku}"`;
-    db.query(sql, function (err, result) {
-      res.render("detail", {
-        title: "detail order",
-        result: result,
-      });
+  axios({
+    method: "GET",
+    url: `http://localhost:3000/isimenu/cari/${Menuku}`,
+  }).then((hasil) => {
+    let data = hasil.data;
+    res.render("detail", {
+      title: "detail order",
+      result: data,
     });
   });
 });
@@ -99,18 +102,20 @@ app.post(
     if (password !== Confirmpassword) {
       res.send({ massage: "incorect confirm password" });
     } else {
-      db.connect(function (err) {
-        let sql = `SELECT * FROM accounts where email = "${email}"`;
-        db.query(sql, function (err, result) {
-          if (err) throw err;
-          if (result.length > 0) {
-            res.send({ message: "Email already usage" });
-          } else {
-            var hashPassword = bcrypt.hashSync(password, salt);
-            inputdata(email, hashPassword, username);
+      axios({
+        method: "GET",
+        url: `http://localhost:3000/accounts/${email}`,
+      }).then((hasil) => {
+        if (hasil.data.payload !== null) {
+          res.send({ message: "Email already usage" });
+        } else {
+          inputdata(email, password, username);
+          if (inputdata() == true) {
             res.redirect("/login");
+          } else {
+            res.send("gagal SignUp");
           }
-        });
+        }
       });
     }
   }
@@ -129,40 +134,35 @@ app.post(
       let email = req.body.email;
       let password = req.body.Password;
 
-      db.connect(function (err) {
-        let sql = `SELECT * FROM accounts where email = "${email}"`;
-        db.query(sql, function (err, result) {
-          if (err) throw err;
-          if (result.length > 0) {
-            result.forEach((accounts) => {
-              var cek = bcrypt.compareSync(password, accounts.password);
-
-              if (cek) {
-                req.session.Email = accounts.email;
-                req.session.username = accounts.username;
-                req.session.identity = accounts.identity;
-                res.redirect("/");
-              } else {
-                res.send({ message: "incorect password" });
-              }
-            });
-          } else {
-            res.send({ message: "Wrong username/password" });
-          }
-        });
+      axios({
+        method: "GET",
+        url: `http://localhost:3000/accounts/${email}`,
+      }).then((hasil) => {
+        if (hasil.data.payload == null) {
+          res.send("belum terdaftar");
+        }
+        var cek = bcrypt.compareSync(password, hasil.data.payload.password);
+        if (cek) {
+          req.session.Email = hasil.data.payload.email;
+          req.session.username = hasil.data.payload.username;
+          req.session.identity = hasil.data.payload.identity;
+          res.redirect("/");
+        } else {
+          res.send({ message: "Wrong username/password" });
+        }
       });
     }
   }
 );
 
 app.get("/Pesan", (req, res) => {
-  db.connect(function (err) {
-    let sql = `SELECT * FROM isiMenu`;
-    db.query(sql, function (err, result) {
-      res.render("checkout", {
-        result: result,
-        title: "FormPemesanan",
-      });
+  axios({
+    method: "GET",
+    url: `http://localhost:3000/isimenu`,
+  }).then((hasil) => {
+    res.render("checkout", {
+      result: hasil.data,
+      title: "FormPemesanan",
     });
   });
 });
@@ -172,28 +172,30 @@ app.post("/Pesan", (req, res) => {
   let Jumlah = parseInt(req.body.Jumlah);
   let option = req.body.option;
   let Notes = req.body.Notes;
-  let EmailSession = req.session.Email;
+  // let EmailSession = req.session.Email;
+  let EmailSession = "Drag@gmail.com";
 
   if (Email !== EmailSession) {
     res.send({ message: "wrong email usage" });
   } else {
-    db.connect(function (err) {
-      let sql = `SELECT * FROM pemesanan where email = "${Email}" and kode = "${option}"`;
-      db.query(sql, function (err, result) {
-        if (result.length > 0) {
-          result.forEach((customer) => {
-            let isi = customer.kuantitas;
-
-            update(isi, Jumlah, Email, option, Notes);
-            req.flash("msg", "pesanan Berhasil di update");
-            res.redirect("/Keranjang");
-          });
-        } else {
-          inputPesan(option, Email, Jumlah, Notes);
-          req.flash("msg", "pesanan sudah di keranjang");
-          res.redirect("/Keranjang");
-        }
-      });
+    axios({
+      method: "GET",
+      url: `http://localhost:3000/pemesanan/s`,
+      data: {
+        email: Email,
+        kode: option,
+      },
+    }).then((hasil) => {
+      if (hasil.data.payload !== null) {
+        let isi = hasil.data.payload.kuantitas;
+        update(isi, Jumlah, Email, option, Notes);
+        req.flash("msg", "pesanan Berhasil di update");
+        return res.redirect("/keranjang");
+      } else {
+        inputPesan(option, Email, Jumlah, Notes)
+        req.flash("msg", "pesanan sudah di keranjang");
+        return res.redirect("/keranjang");
+      }
     });
   }
 });
@@ -206,17 +208,15 @@ app.get("/NotFound", (req, res) => {
 
 app.get("/keranjang", (req, res) => {
   let email = req.session.Email;
-  db.connect(function (err) {
-    let sql = `SELECT pemesanan.kode, isimenu.menu , pemesanan.email,pemesanan.kuantitas ,isimenu.harga
-    FROM isimenu 
-    INNER JOIN pemesanan ON pemesanan.kode=isimenu.kode 
-    where email = "${email}"`;
-    db.query(sql, function (err, result) {
-      res.render("blog1", {
-        result,
-        msg: req.flash("msg"),
-        email,
-      });
+  axios({
+    method: "GET",
+    url: `http://localhost:3000/isimenu/keranjang/${email}`,
+  }).then((hasil) => {
+    console.log(hasil)
+    res.render("blog1", {
+      result: hasil.data,
+      msg: req.flash("msg"),
+      email,
     });
   });
 });
@@ -249,9 +249,17 @@ app.get("/edit/delete", (req, res) => {
 app.post("/edit/delete", (req, res) => {
   let kode = req.body.kode;
 
-  deleteMenu(kode);
-  req.flash("msg", "success delete data");
-  res.redirect("/blog");
+  axios({
+    method: "DELETE",
+    url: `http://localhost:3000/isimenu/${kode}`,
+  }).then((hasil) => {
+    console.log(hasil);
+    req.flash("msg", "success delete data");
+    res.redirect("/blog");
+  });
+  // deleteMenu(kode);
+  // req.flash("msg", "success delete data");
+  // res.redirect("/blog");
 });
 
 app.get("/Logout", (req, res) => {
@@ -260,10 +268,17 @@ app.get("/Logout", (req, res) => {
 });
 
 app.get("/keranjang/:kode", (req, res) => {
-  let kode = req.params.kode;
-  let email = req.session.Email;
-  deleteKeranjang(email, kode);
-  res.redirect("/keranjang");
+  const data = {
+    email: req.session.Email,
+    kode : req.params.kode
+  }
+  axios({
+    method : "delete",
+    url: "http://localhost:3000/pemesanan",
+    data : data,
+  }).then((hasil) => {
+    return res.redirect("/keranjang");
+  })
 });
 
 app.listen(port, () => {
